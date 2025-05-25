@@ -1,12 +1,44 @@
-# React + Vite
+# AI Interview Assistant - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React-based frontend application for conducting AI-powered mock interviews.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Clean, intuitive user interface
+- PDF resume upload with drag-and-drop
+- Real-time chat interface
+- Comprehensive feedback visualization
+- Responsive design with Bootstrap
+- Smooth animations and loading states
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **React 18** with Vite
+- **React Router** for navigation
+- **Bootstrap 5** for UI components
+- **Axios** for API calls
+- **React Bootstrap** for styled components
+
+## 📋 Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+- Backend server running on port 5000
+
+## 🔧 Installation
+
+1. Clone the repository:
+
+git clone <https://github.com/arfat-sayyed/ai-interview-frontend.git>
+cd ai-interview-frontend
+npm install
+
+## Start the development server:
+
+npm run dev
+
+The application will open at <http://localhost:5173>
+
+🔗 Backend Integration
+This frontend requires the AI Interview Backend to be running.
+Backend repository:
