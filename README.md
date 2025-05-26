@@ -41,4 +41,4 @@ The application will open at <http://localhost:5173>
 
 🔗 Backend Integration
 This frontend requires the AI Interview Backend to be running.
-Backend repository:
+Backend repository: <https://github.com/arfat-sayyed/ai-interview-backend.git>

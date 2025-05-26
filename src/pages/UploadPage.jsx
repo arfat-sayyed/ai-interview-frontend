@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
+import { 
+  Upload, 
+  FileText, 
+  Briefcase, 
+  Building2, 
+  AlertCircle,
+  ChevronRight,
+  ArrowLeft,
+  CheckCircle,
+  Sparkles
+} from 'lucide-react';
 import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api';
@@ -9,6 +20,7 @@ function UploadPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
     resume: null,
     position: '',
@@ -16,15 +28,38 @@ function UploadPage() {
     jobDescription: '',
   });
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFile = (file) => {
     if (file && file.type === 'application/pdf') {
       setFormData({ ...formData, resume: file });
       setError('');
     } else {
       setError('Please upload a PDF file');
-      e.target.value = null; // Reset file input
     }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    handleFile(file);
   };
 
   const handleInputChange = (e) => {
@@ -69,104 +104,390 @@ function UploadPage() {
   };
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-center">
-        <Col md={8}>
-          <h2 className="mb-4">Start New Interview</h2>
-          
-          {error && <Alert variant="danger" dismissible onClose={() => setError('')}>
-            {error}
-          </Alert>}
-          
-          <Form onSubmit={handleSubmit}>
-            <Card className="mb-4">
-              <Card.Body>
-                <Card.Title>Resume Upload</Card.Title>
-                <Card.Text className="text-muted">
-                  Upload your resume in PDF format (max 10MB)
-                </Card.Text>
-                <Form.Group>
-                  <Form.Control
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    required
-                    disabled={loading}
-                  />
-                  {formData.resume && (
-                    <small className="text-success mt-2 d-block">
-                      ✓ {formData.resume.name} selected
+    <div className="min-vh-100 position-relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="position-absolute w-100 h-100" style={{ zIndex: -1 }}>
+        <div className="gradient-bg"></div>
+        <div className="floating-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+        </div>
+      </div>
+
+      <Container className="py-5">
+        <Row className="justify-content-center">
+          <Col lg={8}>
+            {/* Header */}
+            <div className="mb-4">
+              <Link to="/" className="text-decoration-none">
+                <Button variant="link" className="p-0 mb-3 text-decoration-none">
+                  <ArrowLeft size={20} className="me-2" />
+                  Back to Home
+                </Button>
+              </Link>
+              
+              <div className="text-center mb-5">
+                <div className="upload-badge mb-3">
+                  <Sparkles size={16} className="me-1" />
+                  New Interview Session
+                </div>
+                <h1 className="display-5 fw-bold mb-3">
+                  Let's Start Your
+                  <span className="gradient-text"> AI Interview</span>
+                </h1>
+                <p className="text-muted lead">
+                  Upload your resume and provide job details to begin your personalized interview experience
+                </p>
+              </div>
+            </div>
+            
+            {error && (
+              <Alert 
+                variant="danger" 
+                dismissible 
+                onClose={() => setError('')}
+                className="glass-alert mb-4"
+              >
+                <AlertCircle size={18} className="me-2" />
+                {error}
+              </Alert>
+            )}
+            
+            <Form onSubmit={handleSubmit}>
+              {/* Resume Upload Card */}
+              <Card className="mb-4 upload-card glassmorphism">
+                <Card.Body className="p-4">
+                  <div className="d-flex align-items-center mb-3">
+                    <div className="icon-wrapper me-3">
+                      <FileText size={24} />
+                    </div>
+                    <div>
+                      <h5 className="mb-1 fw-bold">Resume Upload</h5>
+                      <p className="text-muted small mb-0">Upload your resume in PDF format (max 10MB)</p>
+                    </div>
+                  </div>
+
+                  <Form.Group
+                    className={`upload-zone ${dragActive ? 'drag-active' : ''} ${formData.resume ? 'has-file' : ''}`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                  >
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileChange}
+                      required
+                      disabled={loading}
+                      className="d-none"
+                      id="resume-upload"
+                    />
+                    <label htmlFor="resume-upload" className="upload-label">
+                      {formData.resume ? (
+                        <div className="text-center">
+                          <CheckCircle size={48} className="text-success mb-3" />
+                          <p className="fw-bold mb-1">{formData.resume.name}</p>
+                          <p className="text-muted small">Click to change file</p>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <Upload size={48} className="text-muted mb-3" />
+                          <p className="fw-bold mb-1">Drop your resume here</p>
+                          <p className="text-muted small">or click to browse</p>
+                        </div>
+                      )}
+                    </label>
+                  </Form.Group>
+                </Card.Body>
+              </Card>
+
+              {/* Job Details Card */}
+              <Card className="mb-4 job-details-card glassmorphism">
+                <Card.Body className="p-4">
+                  <div className="d-flex align-items-center mb-4">
+                    <div className="icon-wrapper me-3">
+                      <Briefcase size={24} />
+                    </div>
+                    <div>
+                      <h5 className="mb-1 fw-bold">Job Details</h5>
+                      <p className="text-muted small mb-0">Tell us about the position you're applying for</p>
+                    </div>
+                  </div>
+                  
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-4">
+                        <Form.Label className="fw-medium">
+                          Position Title *
+                        </Form.Label>
+                        <div className="input-group-modern">
+                          <span className="input-icon">
+                            <Briefcase size={18} />
+                          </span>
+                          <Form.Control
+                            type="text"
+                            name="position"
+                            value={formData.position}
+                            onChange={handleInputChange}
+                            placeholder="e.g., Senior Software Engineer"
+                            required
+                            disabled={loading}
+                            className="modern-input"
+                          />
+                        </div>
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={6}>
+                      <Form.Group className="mb-4">
+                        <Form.Label className="fw-medium">
+                          Company Name (Optional)
+                        </Form.Label>
+                        <div className="input-group-modern">
+                          <span className="input-icon">
+                            <Building2 size={18} />
+                          </span>
+                          <Form.Control
+                            type="text"
+                            name="company"
+                            value={formData.company}
+                            onChange={handleInputChange}
+                            placeholder="e.g., Google"
+                            disabled={loading}
+                            className="modern-input"
+                          />
+                        </div>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-medium">
+                      Job Description *
+                    </Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={6}
+                      name="jobDescription"
+                      value={formData.jobDescription}
+                      onChange={handleInputChange}
+                      placeholder="Paste the full job description here..."
+                      required
+                      disabled={loading}
+                      className="modern-textarea"
+                    />
+                    <small className="text-muted">
+                      {formData.jobDescription.length} characters
                     </small>
-                  )}
-                </Form.Group>
-              </Card.Body>
-            </Card>
+                  </Form.Group>
+                </Card.Body>
+              </Card>
 
-            <Card className="mb-4">
-              <Card.Body>
-                <Card.Title>Job Details</Card.Title>
-                
-                <Form.Group className="mb-3">
-                  <Form.Label>Position Title *</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="position"
-                    value={formData.position}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Senior Software Engineer"
-                    required
-                    disabled={loading}
-                  />
-                </Form.Group>
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                size="lg"
+                className="w-100 submit-button"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Spinner animation="border" size="sm" className="me-2" />
+                    Preparing Your Interview...
+                  </>
+                ) : (
+                  <>
+                    Start AI Interview
+                    <ChevronRight size={20} className="ms-2" />
+                  </>
+                )}
+              </Button>
+            </Form>
+          </Col>
+        </Row>
+      </Container>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Company Name (Optional)</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Google"
-                    disabled={loading}
-                  />
-                </Form.Group>
+      <style jsx>{`
+        .gradient-bg {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          opacity: 0.05;
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Job Description *</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={6}
-                    name="jobDescription"
-                    value={formData.jobDescription}
-                    onChange={handleInputChange}
-                    placeholder="Paste the full job description here..."
-                    required
-                    disabled={loading}
-                  />
-                </Form.Group>
-              </Card.Body>
-            </Card>
+        .floating-shapes {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              className="w-100"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Spinner animation="border" size="sm" className="me-2" />
-                  Starting Interview...
-                </>
-              ) : (
-                'Start Interview'
-              )}
-            </Button>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+        .shape {
+          position: absolute;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          opacity: 0.03;
+          border-radius: 50%;
+          animation: float 15s infinite ease-in-out;
+        }
+
+        .shape-1 {
+          width: 200px;
+          height: 200px;
+          top: 10%;
+          left: -100px;
+        }
+
+        .shape-2 {
+          width: 150px;
+          height: 150px;
+          bottom: 10%;
+          right: -75px;
+          animation-delay: 5s;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .upload-badge {
+          display: inline-block;
+          background: rgba(102, 126, 234, 0.1);
+          color: #667eea;
+          padding: 0.5rem 1.5rem;
+          border-radius: 50px;
+          font-size: 0.875rem;
+          font-weight: 600;
+        }
+
+        .gradient-text {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .glassmorphism {
+          backdrop-filter: blur(10px);
+          background: rgba(255, 255, 255, 0.8);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+
+        .upload-card, .job-details-card {
+          transition: all 0.3s ease;
+          border-radius: 16px;
+          overflow: hidden;
+        }
+
+        .upload-card:hover, .job-details-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 40px rgba(31, 38, 135, 0.15);
+        }
+
+        .icon-wrapper {
+          width: 48px;
+          height: 48px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+        }
+
+        .upload-zone {
+          border: 2px dashed rgba(102, 126, 234, 0.3);
+          border-radius: 12px;
+          padding: 3rem;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          background: rgba(102, 126, 234, 0.02);
+        }
+
+        .upload-zone:hover {
+          border-color: rgba(102, 126, 234, 0.5);
+          background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-zone.drag-active {
+          border-color: #667eea;
+          background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-zone.has-file {
+          border-color: #28a745;
+          background: rgba(40, 167, 69, 0.05);
+        }
+
+        .upload-label {
+          cursor: pointer;
+          display: block;
+          margin: 0;
+        }
+
+        .input-group-modern {
+          position: relative;
+        }
+
+        .input-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #667eea;
+          z-index: 10;
+        }
+
+        .modern-input, .modern-textarea {
+          padding-left: 40px;
+          border: 1px solid rgba(102, 126, 234, 0.2);
+          border-radius: 8px;
+          transition: all 0.3s ease;
+          background: rgba(255, 255, 255, 0.8);
+        }
+
+        .modern-textarea {
+          padding-left: 12px;
+        }
+
+        .modern-input:focus, .modern-textarea:focus {
+          border-color: #667eea;
+          box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.1);
+          background: white;
+        }
+
+        .submit-button {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border: none;
+          font-weight: 600;
+          padding: 0.75rem 2rem;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-button:disabled {
+          opacity: 0.7;
+          transform: none;
+        }
+
+        .glass-alert {
+          backdrop-filter: blur(10px);
+          background: rgba(220, 53, 69, 0.1);
+          border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+      `}</style>
+    </div>
   );
 }
 
